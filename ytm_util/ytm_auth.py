@@ -1,6 +1,5 @@
 import os
 
-from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
@@ -9,42 +8,38 @@ from ytm_util.ytm_log import setup_logger
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 TOKEN_FILE = "credentials/token.json"
-CLIENT_SECRETS_FILE = "credentials/client_secret.json"
 
 logger = setup_logger(__name__)
 
 
 def authenticate_youtube():
     """
-    Authenticate the user and return a YouTube service object.
+    Fully autonomous YouTube authentication.
+    Requires token.json with refresh token already generated.
+    No browser flow. Safe for SSH / cron / VPS.
     """
-    creds = None
+
+    if not os.path.exists(TOKEN_FILE):
+        raise RuntimeError(
+            "token.json not found. Generate it once locally."
+        )
+
     try:
-        if os.path.exists(TOKEN_FILE):
-            creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
 
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                try:
-                    creds.refresh(Request())
-                except Exception as error:
-                    # Handle invalid_grant or revoked refresh token
-                    if "invalid_grant" in str(error):
-                        logger.warning(
-                            "Token invalid or revoked, removing old token..."
-                        )
-                        os.remove(TOKEN_FILE)
-                        return authenticate_youtube()
-                    else:
-                        raise
+        # If expired, refresh silently
+        if creds.expired:
+            if creds.refresh_token:
+                logger.info("Access token expired. Refreshing...")
+                creds.refresh(Request())
+
+                # Save updated token
+                with open(TOKEN_FILE, "w") as token:
+                    token.write(creds.to_json())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    CLIENT_SECRETS_FILE, SCOPES
+                raise RuntimeError(
+                    "No refresh token available. Regenerate token.json."
                 )
-                creds = flow.run_local_server(port=0)
-
-            with open(TOKEN_FILE, "w") as token:
-                token.write(creds.to_json())
 
     except Exception as error:
         logger.error(f"Authentication failed: {error}")
