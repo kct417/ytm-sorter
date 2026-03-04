@@ -27,9 +27,9 @@ def authenticate_youtube():
             if creds and creds.expired and creds.refresh_token:
                 try:
                     creds.refresh(Request())
-                except Exception as e:
+                except Exception as error:
                     # Handle invalid_grant or revoked refresh token
-                    if "invalid_grant" in str(e):
+                    if "invalid_grant" in str(error):
                         logger.warning(
                             "Token invalid or revoked, removing old token..."
                         )
@@ -46,8 +46,8 @@ def authenticate_youtube():
             with open(TOKEN_FILE, "w") as token:
                 token.write(creds.to_json())
 
-    except Exception as e:
-        logger.error(f"Authentication failed: {e}")
+    except Exception as error:
+        logger.error(f"Authentication failed: {error}")
         raise
 
     youtube = build("youtube", "v3", credentials=creds)

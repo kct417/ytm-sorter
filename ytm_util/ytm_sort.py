@@ -15,14 +15,18 @@ def get_playlists(youtube):
     while True:
         try:
             result = (
-                youtube.playlists()
-                .list(
-                    part="snippet", mine=True, maxResults=50, pageToken=next_page_token
-                )
-                .execute()
+                youtube
+                    .playlists()
+                    .list(
+                        part="snippet",
+                        mine=True,
+                        maxResults=50,
+                        pageToken=next_page_token
+                    )
+                    .execute()
             )
-        except Exception as e:
-            logger.error(f"Failed to fetch playlists: {e}")
+        except Exception as error:
+            logger.error(f"Failed to fetch playlists: {error}")
             break
 
         playlists.extend(result["items"])
@@ -42,17 +46,18 @@ def get_playlist_items(youtube, playlist_id):
     while True:
         try:
             result = (
-                youtube.playlistItems()
-                .list(
-                    part="snippet",
-                    playlistId=playlist_id,
-                    maxResults=50,
-                    pageToken=next_page_token,
-                )
-                .execute()
+                youtube
+                    .playlistItems()
+                    .list(
+                        part="snippet",
+                        playlistId=playlist_id,
+                        maxResults=50,
+                        pageToken=next_page_token,
+                    )
+                    .execute()
             )
-        except Exception as e:
-            logger.error(f"Failed to fetch items for playlist {playlist_id}: {e}")
+        except Exception as error:
+            logger.error(f"Failed to fetch items for playlist {playlist_id}: {error}")
             break
 
         items.extend(result["items"])
@@ -117,14 +122,14 @@ def reorder_playlist_items(youtube, playlist_id, sort_function):
                 # Find the original index of the item to be moved
                 original_index = next(
                     i
-                    for i, x in enumerate(playlist_items)
-                    if x["id"] == sorted_item["id"]
+                    for i, item in enumerate(playlist_items)
+                    if item["id"] == sorted_item["id"]
                 )
             except StopIteration:
                 logger.error(
                     f"Could not find item ID {sorted_item['id']} in current playlist."
                 )
-                continue
+                break
 
             # Create a new snippet with the updated position
             snippet = deepcopy(sorted_item["snippet"])
@@ -134,20 +139,20 @@ def reorder_playlist_items(youtube, playlist_id, sort_function):
                 youtube.playlistItems().update(
                     part="snippet", body={"id": sorted_item["id"], "snippet": snippet}
                 ).execute()
-            except Exception as e:
+            except Exception as error:
                 logger.error(
-                    f"Failed to update item '{snippet['title']}' to position {i}: {e}"
+                    f"Failed to update item '{snippet['title']}' to position {i}: {error}"
                 )
-                continue
+                break
 
             try:
                 moved_item = playlist_items.pop(original_index)
                 playlist_items.insert(i, moved_item)
-            except Exception as e:
+            except Exception as error:
                 logger.error(
-                    f"Failed to reorder local list after moving item '{snippet['title']}': {e}"
+                    f"Failed to reorder local list after moving item '{snippet['title']}': {error}"
                 )
-                continue
+                break
 
             logger.info(f"{i + 1}. Moved '{snippet['title']}' to position {i}")
 
@@ -163,8 +168,8 @@ def sort_playlist(youtube, playlist, sort_function=sort_playlist_by_artist):
 
     try:
         reorder_playlist_items(youtube, playlist_id, sort_function)
-    except Exception as e:
-        logger.error(f"Error sorting playlist {playlist_id}: {e}")
+    except Exception as error:
+        logger.error(f"Error sorting playlist {playlist_id}: {error}")
 
 
 def sort_all_playlists(youtube, playlists, sort_function=sort_playlist_by_artist):

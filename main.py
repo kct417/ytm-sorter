@@ -1,4 +1,3 @@
-import logging
 from ytm_util.ytm_log import setup_logger, set_third_party_logging_level
 from ytm_util.ytm_auth import authenticate_youtube
 from ytm_util.ytm_sort import get_playlists, sort_all_playlists
@@ -17,8 +16,8 @@ def main():
         playlists = get_playlists(youtube)
         # Default to sorting by artist
         sort_all_playlists(youtube, playlists)
-    except Exception as e:
-        logger.critical(f"Critical error in main: {e}")
+    except Exception as error:
+        logger.critical(f"Critical error in main: {error}")
 
 
 if __name__ == "__main__":
