@@ -1,10 +1,10 @@
-from ytm_util.ytm_log import setup_logger, set_third_party_logging_level
-from ytm_util.ytm_auth import authenticate_youtube
-from ytm_util.ytm_sort import get_playlists, sort_all_playlists
+from util.ytm_log import setup_logger, set_third_party_logging_level
+from util.ytm_auth import authenticate_youtube
+from util.ytm_sort import get_playlists, sort_all_playlists
 
 # -------------------- Logging Setup --------------------
 logger = setup_logger(__name__, disable_console=True)
-modules = {__name__, "ytm_util"}
+modules = {__name__, "util"}
 
 set_third_party_logging_level(modules)
 # -------------------------------------------------------

@@ -1,15 +1,11 @@
 from copy import deepcopy
 
-from ytm_util.ytm_log import setup_logger
+from util.ytm_log import setup_logger
 
 logger = setup_logger(__name__)
 
 
 def get_playlists(youtube):
-    """
-    Fetch all playlists for the authenticated user.
-    """
-
     playlists = []
     next_page_token = None
     while True:
@@ -37,10 +33,6 @@ def get_playlists(youtube):
 
 
 def get_playlist_items(youtube, playlist_id):
-    """
-    Fetch all items in a specific playlist.
-    """
-
     items = []
     next_page_token = None
     while True:
@@ -68,10 +60,6 @@ def get_playlist_items(youtube, playlist_id):
 
 
 def sort_playlist_by_artist(items):
-    """
-    Sort playlist items by artist name.
-    """
-
     def sort_key(item):
         artist = (
             item["snippet"]["videoOwnerChannelTitle"] or item["snippet"]["channelTitle"]
@@ -89,10 +77,6 @@ def sort_playlist_by_artist(items):
 
 
 def sort_playlist_by_title(items):
-    """
-    Sort playlist items by title.
-    """
-
     def sort_key(item):
         title = item["snippet"]["title"]
         return title.lower()
@@ -101,10 +85,6 @@ def sort_playlist_by_title(items):
 
 
 def reorder_playlist_items(youtube, playlist_id, sort_function):
-    """
-    Reorder playlist items through YouTube API.
-    """
-
     playlist_items = get_playlist_items(youtube, playlist_id)
     sorted_items = sort_function(playlist_items)
 
@@ -158,10 +138,6 @@ def reorder_playlist_items(youtube, playlist_id, sort_function):
 
 
 def sort_playlist(youtube, playlist, sort_function=sort_playlist_by_artist):
-    """
-    Sort and reorder a single playlist.
-    """
-
     playlist_id = playlist["id"]
     title = playlist["snippet"]["title"]
     logger.info(f"{title} (ID: {playlist_id})")
@@ -173,10 +149,6 @@ def sort_playlist(youtube, playlist, sort_function=sort_playlist_by_artist):
 
 
 def sort_all_playlists(youtube, playlists, sort_function=sort_playlist_by_artist):
-    """
-    Sort and reorder all playlists using the specified sort function.
-    """
-
     logger.info(f"Found {len(playlists)} playlists.")
 
     for playlist in playlists:
@@ -186,10 +158,6 @@ def sort_all_playlists(youtube, playlists, sort_function=sort_playlist_by_artist
 
 
 def display_items(youtube, playlist):
-    """
-    Display all items in a playlist.
-    """
-
     playlist_id = playlist["id"]
     items = get_playlist_items(youtube, playlist_id)
     if not items:

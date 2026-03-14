@@ -3,10 +3,6 @@ import logging.config
 
 
 class ColorFormatter(logging.Formatter):
-    """
-    Custom formatter to add color to log messages based on level.
-    """
-
     COLORS = {
         "DEBUG": "\033[94m",  # Blue
         "INFO": "\033[92m",  # Green
@@ -17,10 +13,6 @@ class ColorFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        """
-        Format the log record with color based on the level.
-        """
-
         color = self.COLORS.get(record.levelname, self.COLORS["RESET"])
         reset = self.COLORS["RESET"]
         message = super().format(record)
@@ -28,10 +20,6 @@ class ColorFormatter(logging.Formatter):
 
 
 def setup_logger(name, **kwargs):
-    """
-    Setup a logger with custom configuration.
-    """
-
     # Log settings
     level = kwargs.get("level", logging.INFO)
     log_file = kwargs.get("log_file", "ytm-sorter.log")
@@ -90,10 +78,6 @@ def setup_logger(name, **kwargs):
 
 
 def set_third_party_logging_level(modules, level=logging.ERROR):
-    """
-    Set the logging level for third-party libraries.
-    """
-
     for name, logger in logging.root.manager.loggerDict.items():
         if not isinstance(logger, logging.Logger):
             continue

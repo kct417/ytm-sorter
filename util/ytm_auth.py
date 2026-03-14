@@ -4,28 +4,22 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-from ytm_util.ytm_log import setup_logger
+from util.ytm_log import setup_logger
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
-TOKEN_FILE = "credentials/token.json"
+TOKEN = "credentials/token.json"
 
 logger = setup_logger(__name__)
 
 
 def authenticate_youtube():
-    """
-    Fully autonomous YouTube authentication.
-    Requires token.json with refresh token already generated.
-    No browser flow. Safe for SSH / cron / VPS.
-    """
-
-    if not os.path.exists(TOKEN_FILE):
+    if not os.path.exists(TOKEN):
         raise RuntimeError(
             "token.json not found. Generate it once locally."
         )
 
     try:
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+        creds = Credentials.from_authorized_user_file(TOKEN, SCOPES)
 
         # If expired, refresh silently
         if creds.expired:
@@ -34,7 +28,7 @@ def authenticate_youtube():
                 creds.refresh(Request())
 
                 # Save updated token
-                with open(TOKEN_FILE, "w") as token:
+                with open(TOKEN, "w") as token:
                     token.write(creds.to_json())
             else:
                 raise RuntimeError(
