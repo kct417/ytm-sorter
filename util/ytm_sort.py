@@ -11,15 +11,11 @@ def get_playlists(youtube):
     while True:
         try:
             result = (
-                youtube
-                    .playlists()
-                    .list(
-                        part="snippet",
-                        mine=True,
-                        maxResults=50,
-                        pageToken=next_page_token
-                    )
-                    .execute()
+                youtube.playlists()
+                .list(
+                    part="snippet", mine=True, maxResults=50, pageToken=next_page_token
+                )
+                .execute()
             )
         except Exception as error:
             logger.error(f"Failed to fetch playlists: {error}")
@@ -38,15 +34,14 @@ def get_playlist_items(youtube, playlist_id):
     while True:
         try:
             result = (
-                youtube
-                    .playlistItems()
-                    .list(
-                        part="snippet",
-                        playlistId=playlist_id,
-                        maxResults=50,
-                        pageToken=next_page_token,
-                    )
-                    .execute()
+                youtube.playlistItems()
+                .list(
+                    part="snippet",
+                    playlistId=playlist_id,
+                    maxResults=50,
+                    pageToken=next_page_token,
+                )
+                .execute()
             )
         except Exception as error:
             logger.error(f"Failed to fetch items for playlist {playlist_id}: {error}")
@@ -154,7 +149,7 @@ def sort_all_playlists(youtube, playlists, sort_function=sort_playlist_by_artist
     for playlist in playlists:
         sort_playlist(youtube, playlist, sort_function)
 
-    logger.info(f"Finished sorting all playlists.")
+    logger.info("Finished sorting all playlists.")
 
 
 def display_items(youtube, playlist):

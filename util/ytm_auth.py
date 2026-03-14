@@ -14,9 +14,7 @@ logger = setup_logger(__name__)
 
 def authenticate_youtube():
     if not os.path.exists(TOKEN):
-        raise RuntimeError(
-            "token.json not found. Generate it once locally."
-        )
+        raise RuntimeError("token.json not found. Generate it once locally.")
 
     try:
         creds = Credentials.from_authorized_user_file(TOKEN, SCOPES)
@@ -31,9 +29,7 @@ def authenticate_youtube():
                 with open(TOKEN, "w") as token:
                     token.write(creds.to_json())
             else:
-                raise RuntimeError(
-                    "No refresh token available. Regenerate token.json."
-                )
+                raise RuntimeError("No refresh token available. Regenerate token.json.")
 
     except Exception as error:
         logger.error(f"Authentication failed: {error}")
