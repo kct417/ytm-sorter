@@ -1,12 +1,14 @@
 import os
 
 from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 from util.ytm_log import setup_logger
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+CREDENTIALS = "credentials/client_secret.json"
 TOKEN = "credentials/token.json"
 
 logger = setup_logger(__name__)
@@ -32,6 +34,13 @@ def authenticate_youtube():
                 raise RuntimeError("No refresh token available. Regenerate token.json.")
 
     except Exception as error:
+        # If any error occurs, prompt for authentication
+        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS, SCOPES)
+        creds = flow.run_local_server()
+
+        with open(TOKEN, "w") as f:
+            f.write(creds.to_json())
+
         logger.error(f"Authentication failed: {error}")
         raise
 
